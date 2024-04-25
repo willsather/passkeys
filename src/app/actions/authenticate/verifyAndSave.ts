@@ -1,9 +1,6 @@
 "use server";
 
-import {
-  findCredentialById,
-  updateCredentialLastUsed,
-} from "@/lib/db/credentials";
+import { PasskeyRepository } from "@/lib/db/passkeys";
 import { cookies } from "next/headers";
 import { verifyAuthenticationResponse } from "@simplewebauthn/server";
 import { AuthenticationExtensionsClientOutputs } from "@simplewebauthn/types";
@@ -37,7 +34,9 @@ export default async function verifyAndSave(credentialDTO: CredentialDTO) {
     }
 
     console.log("verifyAndSave:credentialDTO.id", credentialDTO.id);
-    const credential = await findCredentialById(credentialDTO.id);
+    const credential = await PasskeyRepository.findPasskeyById(
+      credentialDTO.id
+    );
 
     console.log("verifyAndSave:credential", credential);
 
@@ -75,7 +74,7 @@ export default async function verifyAndSave(credentialDTO: CredentialDTO) {
     console.log("updating credentials last used");
 
     // update last used timestamp
-    await updateCredentialLastUsed(credential.id);
+    await PasskeyRepository.updatePasskeyLastUsed(credential.id);
 
     console.log("deleting challenge cookie");
 

@@ -1,7 +1,7 @@
 "use server";
 
-import { createCredential } from "@/lib/db/credentials";
-import { findUserById } from "@/lib/db/users";
+import { PasskeyRepository } from "@/lib/db/passkeys";
+import { UserRepository } from "@/lib/db/users";
 import { cookies } from "next/headers";
 import { verifyRegistrationResponse } from "@simplewebauthn/server";
 import { AuthenticationExtensionsClientOutputs } from "@simplewebauthn/types/types/dom";
@@ -59,7 +59,7 @@ export default async function registerAndSave(credentialDTO: CredentialDTO) {
     );
 
     // create new credential in database
-    await createCredential({
+    await PasskeyRepository.createPasskey({
       id: registrationInfo.credentialID,
       publicKey: isoBase64URL.fromBuffer(registrationInfo.credentialPublicKey),
       name: "Passkey", // TODO: add way to name credential
@@ -75,7 +75,7 @@ export default async function registerAndSave(credentialDTO: CredentialDTO) {
     cookies().delete("challenge");
 
     // Respond with the user information.
-    return findUserById(credentialDTO.user.id);
+    return UserRepository.findUserById(credentialDTO.user.id);
   } catch (error) {
     console.error(error);
     throw new Error("Unable to verify and save authentication", {

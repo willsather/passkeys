@@ -1,21 +1,21 @@
 "use server";
 
-import { findUserById } from "@/lib/db/users";
+import { UserRepository } from "@/lib/db/users";
 
 import { generateRegistrationOptions } from "@simplewebauthn/server";
-import { findCredentialsByUserId } from "@/lib/db/credentials";
+import { PasskeyRepository } from "@/lib/db/passkeys";
 import { cookies } from "next/headers";
 import { isoBase64URL } from "@simplewebauthn/server/helpers";
 
 export default async function getRegistrationOptions(userId: string) {
   try {
-    const user = await findUserById(userId);
+    const user = await UserRepository.findUserById(userId);
 
     if (user == null) {
       throw new Error("Unable to find user");
     }
 
-    const credentials = await findCredentialsByUserId(user.id);
+    const credentials = await PasskeyRepository.findPasskeysByUserId(user.id);
 
     const excludeCredentials = [];
 
@@ -53,27 +53,4 @@ export default async function getRegistrationOptions(userId: string) {
       cause: error,
     });
   }
-
-  // try {
-  //   // Only check username, no need to check password as this is a mock
-  //   if (username == null || !/^[a-zA-Z0-9@.\-_]+$/.test(username)) {
-  //     throw new Error("Invalid username");
-  //   }
-  //
-  //   let user = await findUserByUsername(username);
-  //
-  //   if (user == null) {
-  //     user = {
-  //       id: isoBase64URL.fromBuffer(crypto.randomBytes(32)),
-  //       username,
-  //     };
-  //
-  //     await createUser(user);
-  //   }
-  //   return user;
-  // } catch (error) {
-  //   throw new Error("Unable to get registration options", {
-  //     cause: error,
-  //   });
-  // }
 }

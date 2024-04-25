@@ -6,30 +6,32 @@ export interface User {
   username: string;
 }
 
-export async function createUser(user: User) {
-  users[user.id] = user;
+export abstract class UserRepository {
+  public static createUser(user: User) {
+    users[user.id] = user;
 
-  return Promise.resolve(user);
-}
-
-export async function getAllUsers() {
-  return Promise.resolve(Object.values(users));
-}
-
-export async function findUserById(userId: string) {
-  const user = users[userId];
-
-  if (user) {
     return Promise.resolve(user);
   }
-}
 
-export async function findUserByUsername(username: string) {
-  const user = Object.entries(users).find(
-    ([, user]) => user.username == username
-  );
+  public static getAllUsers() {
+    return Promise.resolve(Object.values(users));
+  }
 
-  if (user) {
-    return Promise.resolve(user[1]);
+  public static findUserById(userId: string) {
+    const user = users[userId];
+
+    if (user) {
+      return Promise.resolve(user);
+    }
+  }
+
+  public static findUserByUsername(username: string) {
+    const user = Object.entries(users).find(
+      ([, user]) => user.username == username
+    );
+
+    if (user) {
+      return Promise.resolve(user[1]);
+    }
   }
 }
