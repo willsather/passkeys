@@ -3,12 +3,16 @@ import { decode, encode } from "./base64";
 import { isoBase64URL } from "@simplewebauthn/server/helpers";
 import registerAndSave from "@/src/app/actions/register/registerAndSave";
 import { RegistrationCredential } from "@simplewebauthn/types";
-import saveUser from "@/src/app/actions/user/saveUser";
+import { UserRepository } from "@/lib/db/users";
 
-export default async function register(username: string) {
-  const user = await saveUser(username);
+export default async function register(userId: string) {
+  const user = await UserRepository.findUserById(userId);
 
-  const options = await getRegistrationOptions(user.id);
+  if (user == null) {
+    throw new Error("Unable to find user while registering passkey");
+  }
+
+  const options = await getRegistrationOptions(userId);
 
   // Invoke WebAuthn create
   const credential = (await navigator.credentials.create({

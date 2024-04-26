@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { authenticate } from "@/src/utils/auth/authenticate";
-import register from "@/src/utils/auth/register";
 import retrieveUser from "@/src/app/actions/user/retrieveUser";
+import saveUser from "@/src/app/actions/user/saveUser";
 
 export default function LoginContainer() {
   type LoginState = "username" | "login" | "signup";
@@ -58,7 +58,7 @@ export default function LoginContainer() {
         return;
 
       case "signup":
-        await register(username);
+        await saveUser(username);
         return;
     }
   };
