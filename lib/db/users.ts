@@ -1,37 +1,35 @@
-// TODO: create and store in a real database
-const users: Record<string, User> = {};
+import { PrismaClient } from "@prisma/client";
+import { z } from "zod";
 
-export interface User {
-  id: string;
-  username: string;
-}
+const userSchema = z.object({
+  id: z.string(),
+  username: z.string(),
+});
+
+export type User = z.infer<typeof userSchema>;
+
+const prisma = new PrismaClient();
 
 export abstract class UserRepository {
-  public static createUser(user: User) {
-    users[user.id] = user;
-
-    return Promise.resolve(user);
+  public static async createUser(user: User) {
+    return await prisma.user.create({
+      data: user,
+    });
   }
 
-  public static getAllUsers() {
-    return Promise.resolve(Object.values(users));
+  public static async findUserById(userId: string) {
+    return await prisma.user.findFirst({
+      where: {
+        id: userId,
+      },
+    });
   }
 
-  public static findUserById(userId: string) {
-    const user = users[userId];
-
-    if (user) {
-      return Promise.resolve(user);
-    }
-  }
-
-  public static findUserByUsername(username: string) {
-    const user = Object.entries(users).find(
-      ([, user]) => user.username == username
-    );
-
-    if (user) {
-      return Promise.resolve(user[1]);
-    }
+  public static async findUserByUsername(username: string) {
+    return await prisma.user.findFirst({
+      where: {
+        username: username,
+      },
+    });
   }
 }
